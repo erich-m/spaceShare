@@ -16,14 +16,15 @@ let multiplier = 24*60*60*1000;
 let clicks = 0;
 
 let volume = 0;
+let copiedSource = "";
 
 function setup(){
 	createCanvas(windowWidth,windowHeight);
-
+	margin = map(dist(0,0,windowWidth,windowHeight),0,sqrt(sq(windowWidth)+sq(windowHeight)),0,50);
 	fetchApi();
 	
-	buttons[0] = new Button(windowWidth/8,windowHeight/2,windowWidth/3,windowHeight*0.75,10,margin,color('#F52E2E'),70,0,220,volume);
-	buttons[1] = new Button(windowWidth/8*7,windowHeight/2,windowWidth/3,windowHeight*0.75,10,margin,color('#5463FF'),70,0,440,volume);
+	buttons[0] = new Button(windowWidth/8,windowHeight/2,windowWidth/3,windowHeight*0.6,10,margin,color('#F52E2E'),70,0,220,volume);
+	buttons[1] = new Button(windowWidth/8*7,windowHeight/2,windowWidth/3,windowHeight*0.6,10,margin,color('#5463FF'),70,0,440,volume);
 	for(let e = 0;e < buttons.length;e++){
 		buttons[e].enableButton();
 		buttons[e].enableUserControl();
@@ -41,7 +42,7 @@ function setup(){
 }
 
 function draw(){
-	background(155);
+	background(175);
 	renderFeatures();
 
 	imageMode(CENTER);
@@ -65,22 +66,60 @@ function draw(){
 		}
 		currentImage.hide();
 		// currentImage = createImg(fetchedInfo[1],fetchedInfo[2]);
-		image(currentImage,windowWidth/2,windowHeight/2,windowWidth/2,windowWidth/2);
+		image(currentImage,windowWidth/2,windowHeight/2,windowWidth/2-margin,windowHeight/2);
 		noFill();
 		stroke(0);
 		strokeWeight(5);
-		rect(windowWidth/2,windowHeight/2,windowWidth/2,windowWidth/2);
+
+		if(mouseIsPressed && fetchedInfo[0] && windowWidth/4 <= mouseX && mouseX <= windowWidth*0.75 && windowWidth/4 <= mouseY && mouseY <= windowWidth *0.75){
+			// console.log(true);
+			if(typeof fetchedInfo[1] != 'undefined'){
+				navigator.clipboard.writeText(fetchedInfo[1]).then(()=>{
+					// console.log("Source Copied");
+					if(copiedSource != fetchedInfo[1]){
+						copiedSource = fetchedInfo[1];
+					}
+				}).catch(err=>{
+					// console.log("error");
+				})
+			}
+		}
+
+		rect(windowWidth/2,windowHeight/2,windowWidth/2-margin,windowHeight/2);
 		currentImage.hide();
 
-		textAlign(CENTER);
+		textAlign(CENTER,CENTER);
+		
 		fill(0);
 		noStroke();
 		strokeWeight(1);
 		textSize(20);
 		textStyle(BOLD);
+		text(fetchedInfo[2] + ": " + fetchedInfo[5],windowWidth/2,windowHeight/2+windowHeight/4+(windowHeight/2-windowHeight/4)*0.3);
+		let explanation = split(fetchedInfo[3],".,");
+		textSize(10);
+		text(explanation[0],windowWidth/2,windowHeight/2+windowHeight/4+(windowHeight/2-windowHeight/4)*0.45,width-margin);
+		if(copiedSource != fetchedInfo[1]){
+			// console.log(true);
+			textSize(20);
+			textStyle(BOLD);
+			noStroke();
+			fill(0);
+			strokeWeight(2);
+			text("CLICK IMAGE to SHARE!",windowWidth/2,windowHeight/2+windowHeight/4+(windowHeight/2-windowHeight/4)*0.15);
+		}else{
+			// console.log(false);
+			textSize(20);
+			textStyle(BOLD);
+			noStroke();
+			fill('#1F9E40');
+			strokeWeight(2);
+			text("COPIED!",windowWidth/2,windowHeight/2+windowHeight/4+(windowHeight/2-windowHeight/4)*0.15);
+		}
 		
-		text(fetchedInfo[2] + ": " + fetchedInfo[5],windowWidth/2,windowHeight*0.81);
 	}
+
+	
 }
 
 function renderFeatures(){
@@ -89,8 +128,8 @@ function renderFeatures(){
 		
 		buttons[i].flash(1000,false,fetchApi);
 	}
-	buttons[0].update(windowWidth/8,windowHeight/2,windowWidth/3,windowHeight*0.75,10,margin);
-	buttons[1].update(windowWidth/8*7,windowHeight/2,windowWidth/3,windowHeight*0.75,10,margin);
+	buttons[0].update(windowWidth/8,windowHeight/2,windowWidth/3,windowHeight*0.6,10,margin);
+	buttons[1].update(windowWidth/8*7,windowHeight/2,windowWidth/3,windowHeight*0.6,10,margin);
 }
 
 function fetchApi(){
@@ -122,3 +161,20 @@ function recievedData(data){
 	console.log(fetchedInfo);
 }
 
+function windowResized(){
+	resizeCanvas(windowWidth,windowHeight);
+	margin = map(dist(0,0,windowWidth,windowHeight),0,sqrt(sq(windowWidth)+sq(windowHeight)),0,50);
+}
+
+function mouseClicked(){
+	if(fetchedInfo[0] && windowWidth/4 <= mouseX && mouseX <= windowWidth*0.75 && windowWidth/4 <= mouseY && mouseY <= windowWidth *0.75){
+		console.log(true);
+		if(typeof fetchedInfo[1] != 'undefined'){
+			navigator.clipboard.writeText(fetchedInfo[1]).then(()=>{
+				// console.log("Source Copied");
+			}).catch(err=>{
+				// console.log("error");
+			})
+		}
+	}
+}

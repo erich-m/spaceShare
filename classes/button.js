@@ -3,8 +3,8 @@ class Button {
 	constructor(x,y,w,h,r,margin,fillColor,flashColor,id,note,volume){
 		this.x = x;
 		this.y = y;
-		this.w = w-(2*margin);
-		this.h = h-(2*margin);
+		this.w = w;
+		this.h = h;
 		this.r = r;
 
 		this.m = margin;
@@ -31,13 +31,13 @@ class Button {
 			fill(this.flashColor);
 		}
 		rectMode(CENTER);
-		rect(this.x,this.y,this.w,this.h,this.r);
+		rect(this.x,this.y,this.w-3*this.m,this.h-this.m*2,this.r);
 	}
 	update(x,y,w,h,r,margin){
 		this.x = x;
 		this.y = y;
-		this.w = w-(2*margin);
-		this.h = h-(2*margin);
+		this.w = w;
+		this.h = h;
 		this.r = r;
 
 		this.m = margin;
