@@ -15,16 +15,18 @@ let today = new Date();
 let multiplier = 24*60*60*1000;
 let clicks = 0;
 
-let volume = 0;
+let volume = 0.7;
 let copiedSource = "";
+
+
 
 function setup(){
 	createCanvas(windowWidth,windowHeight);
 	margin = map(dist(0,0,windowWidth,windowHeight),0,sqrt(sq(windowWidth)+sq(windowHeight)),0,50);
 	fetchApi();
 	
-	buttons[0] = new Button(windowWidth/8,windowHeight/2,windowWidth/3,windowHeight*0.6,10,margin,color('#F52E2E'),70,0,220,volume);
-	buttons[1] = new Button(windowWidth/8*7,windowHeight/2,windowWidth/3,windowHeight*0.6,10,margin,color('#5463FF'),70,0,440,volume);
+	buttons[0] = new Button(windowWidth/8,windowHeight/2,windowWidth/3,windowHeight*0.6,10,margin,color('#F52E2E'),70,0,220,volume,"CLICK TO\nDISLIKE IMAGE");
+	buttons[1] = new Button(windowWidth/8*7,windowHeight/2,windowWidth/3,windowHeight*0.6,10,margin,color('#5463FF'),70,0,440,volume,"CLICK TO\nLIKE IMAGE");
 	for(let e = 0;e < buttons.length;e++){
 		buttons[e].enableButton();
 		buttons[e].enableUserControl();
@@ -145,6 +147,10 @@ function fetchApi(){
 	clicks++;
 	console.log(clicks);
 	let returnDate = new Date(currentStamp);
+	let compareDate = new Date("01/01/2015");
+	if(returnDate < compareDate){
+		clicks = 0;
+	}
 	url += returnDate.getFullYear() + "-" + (returnDate.getUTCMonth() + 1) + "-" + returnDate.getDate() + "&api_key=" + apiKey;
 
 	loadJSON(url,recievedData);

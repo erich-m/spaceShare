@@ -1,6 +1,6 @@
 //Button Class to render and flash buttons on screen
 class Button {
-	constructor(x,y,w,h,r,margin,fillColor,flashColor,id,note,volume){
+	constructor(x,y,w,h,r,margin,fillColor,flashColor,id,note,volume,textParam){
 		this.x = x;
 		this.y = y;
 		this.w = w;
@@ -13,6 +13,8 @@ class Button {
 		this.v = volume;
 
 		this.id = id;
+
+        this.textParam = textParam;
 		
 		this.c = fillColor;
 		this.flashColor = color(red(fillColor)-flashColor,green(fillColor)-flashColor,blue(fillColor)-flashColor);
@@ -32,6 +34,11 @@ class Button {
 		}
 		rectMode(CENTER);
 		rect(this.x,this.y,this.w-3*this.m,this.h-this.m*2,this.r);
+
+        fill(0);
+        noStroke();
+        textSize(this.w*0.05);
+        text(this.textParam,this.x,this.y);
 	}
 	update(x,y,w,h,r,margin){
 		this.x = x;
