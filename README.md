@@ -9,6 +9,11 @@ Some notable features:
     If the user clicks on the image, the source link will be copied to their clipboard to be shared with friends
     The webpage is connected through a subdomain of my personal .tech domain
 
+TODO for the future:
+    Save likes on a database for the user
+    Add a download button for the image
+    Make more mobile friendly
+
 The webpage is active here and on my website:
     https://spaceshare.erich-m.tech/
     https://erich-m.tech
