@@ -3,5 +3,6 @@ html, body {
   padding: 0;
 }
 canvas {
+  /* Block resitricts scrolling on webpage */
   display: block;
 }
