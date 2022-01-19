@@ -8,7 +8,7 @@ let loadingGif;
 let logo;
 let currentImage;
 
-let margin = 70;
+let margin = 65;
 
 let startDate = new Date();
 let today = new Date();
