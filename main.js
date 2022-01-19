@@ -9,24 +9,33 @@ let currentImage;
 
 let margin = 70;
 
-let startDate = new Date('01/01/2015');
+let startDate = new Date();
 let today = new Date();
 
 let multiplier = 24*60*60*1000;
-let clicks = 0;
+let currentDate = new Date();
+
+let dateRange = {
+	min : new Date('06/20/1995'),
+	max : new Date()
+}
 
 let volume = 0.7;
 let copiedSource = "";
 
-
+let likes = {};
+let direction = "next";
 
 function setup(){
 	createCanvas(windowWidth,windowHeight);
 	margin = map(dist(0,0,windowWidth,windowHeight),0,sqrt(sq(windowWidth)+sq(windowHeight)),0,50);
 	fetchApi();
 	
-	buttons[0] = new Button(windowWidth/8,windowHeight/2,windowWidth/3,windowHeight*0.6,10,margin,color('#F52E2E'),70,0,220,volume,"CLICK TO\nDISLIKE IMAGE");
-	buttons[1] = new Button(windowWidth/8*7,windowHeight/2,windowWidth/3,windowHeight*0.6,10,margin,color('#5463FF'),70,0,440,volume,"CLICK TO\nLIKE IMAGE");
+	buttons[0] = new Button(windowWidth/8,windowHeight/2+windowHeight*0.3,windowWidth/3,windowHeight*0.2,10,margin,color('#DE8A00'),70,0,220,volume,"BACK");
+	buttons[1] = new Button(windowWidth/8*7,windowHeight/2+windowHeight*0.3,windowWidth/3,windowHeight*0.2,10,margin,color('#089200'),70,0,440,volume,"NEXT");
+	buttons[2] = new Button(windowWidth/8,windowHeight/2,windowWidth/3,windowHeight*0.6,10,margin,color('#F52E2E'),70,0,220,volume,"CLICK TO\nDISLIKE IMAGE");
+	buttons[3] = new Button(windowWidth/8*7,windowHeight/2,windowWidth/3,windowHeight*0.6,10,margin,color('#5463FF'),70,0,440,volume,"CLICK TO\nLIKE IMAGE");
+	
 	for(let e = 0;e < buttons.length;e++){
 		buttons[e].enableButton();
 		buttons[e].enableUserControl();
@@ -44,7 +53,7 @@ function setup(){
 }
 
 function draw(){
-	background(175);
+	background('#616161');
 	renderFeatures();
 
 	imageMode(CENTER);
@@ -70,8 +79,7 @@ function draw(){
 		// currentImage = createImg(fetchedInfo[1],fetchedInfo[2]);
 		image(currentImage,windowWidth/2,windowHeight/2,windowWidth/2-margin,windowHeight/2);
 		noFill();
-		stroke(0);
-		strokeWeight(5);
+		strokeWeight(7);
 
 		if(mouseIsPressed && fetchedInfo[0] && windowWidth/4 <= mouseX && mouseX <= windowWidth*0.75 && windowWidth/4 <= mouseY && mouseY <= windowWidth *0.75){
 			// console.log(true);
@@ -86,7 +94,16 @@ function draw(){
 				})
 			}
 		}
-
+		let likeKey = currentDate.getFullYear() + "-" + currentDate.getUTCMonth() + "-" + currentDate.getUTCDate();
+		if(typeof likes[likeKey] == 'undefined'){
+			stroke(0);
+		}else if(likes[likeKey] == -1){
+			stroke('#F52E2E');
+		}else if(likes[likeKey] == 1){
+			stroke('#5463FF');
+		}else{
+			stroke(0);
+		}
 		rect(windowWidth/2,windowHeight/2,windowWidth/2-margin,windowHeight/2);
 		currentImage.hide();
 
@@ -117,44 +134,59 @@ function draw(){
 			fill('#1F9E40');
 			strokeWeight(2);
 			text("COPIED!",windowWidth/2,windowHeight/2+windowHeight/4+(windowHeight/2-windowHeight/4)*0.15);
-		}
-		
+		}	
 	}
-
-	
 }
 
 function renderFeatures(){
 	for(let i = 0;i < buttons.length;i++){
 		buttons[i].render(1,5);
-		
-		buttons[i].flash(1000,false,fetchApi);
+		if(i == 0){
+			direction = "back";
+			buttons[i].flash(1000,false,fetchApi);
+		}else if(i == 1){
+			direction = "next";
+			buttons[i].flash(1000,false,fetchApi);
+		}else if(i == 2){
+			buttons[i].flash(1000,false,disLikeImage);
+		}else{
+			buttons[i].flash(1000,false,likeImage);
+		}
 	}
-	buttons[0].update(windowWidth/8,windowHeight/2,windowWidth/3,windowHeight*0.6,10,margin);
-	buttons[1].update(windowWidth/8*7,windowHeight/2,windowWidth/3,windowHeight*0.6,10,margin);
+	buttons[0].update(windowWidth/8,windowHeight/2+windowHeight*0.3,windowWidth/3,windowHeight*0.2,10,margin);
+	buttons[1].update(windowWidth/8*7,windowHeight/2+windowHeight*0.3,windowWidth/3,windowHeight*0.2,10,margin);
+	buttons[2].update(windowWidth/8,windowHeight/2,windowWidth/3,windowHeight*0.6,10,margin);
+	buttons[3].update(windowWidth/8*7,windowHeight/2,windowWidth/3,windowHeight*0.6,10,margin);
 }
 
 function fetchApi(){
 	let url = "https://api.nasa.gov/planetary/apod?date=";
 	let apiKey = "eBxUdgb3ndh8ififjjN4O2phAzPODRBBkWcVviy2";
-	let currentDate = today;
-	let currentStamp;
-	if(clicks == -1){
-		currentStamp = currentDate.getTime();
-	}else{
-		currentStamp = currentDate.getTime() - multiplier*clicks;
+	let timeStamp = currentDate.getTime();
+	if(direction == "next"){
+		timeStamp = currentDate.getTime();
+		timeStamp+=multiplier;
+	}else if(direction=="back"){
+		timeStamp = currentDate.getTime();
+		timeStamp-=multiplier;
 	}
-	clicks++;
-	console.log(clicks);
-	let returnDate = new Date(currentStamp);
-	let compareDate = new Date("01/01/2015");
-	if(returnDate < compareDate){
-		clicks = 0;
+	let returnDate = new Date(timeStamp);
+	currentDate = returnDate;
+
+	if(currentDate < dateRange.min){
+		console.log("Cycle to front");
+		currentDate = dateRange.max;
+		returnDate = dateRange.max;
+	}
+	if(currentDate > dateRange.max){
+		console.log("cycle to back");
+		currentDate = dateRange.min;
+		returnDate = dateRange.min;
 	}
 	url += returnDate.getFullYear() + "-" + (returnDate.getUTCMonth() + 1) + "-" + returnDate.getDate() + "&api_key=" + apiKey;
 
 	loadJSON(url,recievedData);
-	// console.log(url);
+	console.log(url);
 }
 
 function recievedData(data){
@@ -172,7 +204,7 @@ function windowResized(){
 	margin = map(dist(0,0,windowWidth,windowHeight),0,sqrt(sq(windowWidth)+sq(windowHeight)),0,50);
 }
 
-function mouseClicked(){
+function mousePressed(){
 	if(fetchedInfo[0] && windowWidth/4 <= mouseX && mouseX <= windowWidth*0.75 && windowWidth/4 <= mouseY && mouseY <= windowWidth *0.75){
 		console.log(true);
 		if(typeof fetchedInfo[1] != 'undefined'){
@@ -182,5 +214,26 @@ function mouseClicked(){
 				// console.log("error");
 			})
 		}
+	}
+}
+
+function likeImage(){
+	let key = currentDate.getFullYear() + "-" + currentDate.getUTCMonth() + "-" + currentDate.getUTCDate();
+	if(typeof likes[key] == 'undefined'){
+		likes[key] = 1;
+	}else if(likes[key] == 1){
+		delete likes[key];
+	}else if(likes[key] == -1){
+		likes[key] = 1;
+	}
+}
+function disLikeImage(){
+	let key = currentDate.getFullYear() + "-" + currentDate.getUTCMonth() + "-" + currentDate.getUTCDate();
+	if(typeof likes[key] == 'undefined'){
+		likes[key] = -1;
+	}else if(likes[key] == -1){
+		delete likes[key];
+	}else if(likes[key] == 1){
+		likes[key] = -1;
 	}
 }
