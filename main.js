@@ -22,6 +22,7 @@ let dateRange = {
 
 let volume = 0.7;
 let copiedSource = "";
+let copiedStatus = false;
 
 let likes = {};
 let direction = "next";
@@ -31,7 +32,7 @@ function setup(){
 	margin = map(dist(0,0,windowWidth,windowHeight),0,sqrt(sq(windowWidth)+sq(windowHeight)),0,50);
 	fetchApi();
 	
-	buttons[0] = new Button(windowWidth/8,windowHeight/2+windowHeight*0.3,windowWidth/3,windowHeight*0.2,10,margin,color('#DE8A00'),70,0,220,volume,"BACK");
+	buttons[0] = new Button(windowWidth/8,windowHeight/2+windowHeight*0.3,windowWidth/3,windowHeight*0.2,30,margin,color('#DE8A00'),70,0,220,volume,"BACK");
 	buttons[1] = new Button(windowWidth/8*7,windowHeight/2+windowHeight*0.3,windowWidth/3,windowHeight*0.2,10,margin,color('#089200'),70,0,440,volume,"NEXT");
 	buttons[2] = new Button(windowWidth/8,windowHeight/2,windowWidth/3,windowHeight*0.6,10,margin,color('#F52E2E'),70,0,220,volume,"CLICK TO\nDISLIKE IMAGE");
 	buttons[3] = new Button(windowWidth/8*7,windowHeight/2,windowWidth/3,windowHeight*0.6,10,margin,color('#5463FF'),70,0,440,volume,"CLICK TO\nLIKE IMAGE");
@@ -81,13 +82,13 @@ function draw(){
 		noFill();
 		strokeWeight(7);
 
-		if(mouseIsPressed && fetchedInfo[0] && windowWidth/4 <= mouseX && mouseX <= windowWidth*0.75 && windowWidth/4 <= mouseY && mouseY <= windowWidth *0.75){
+		if(mouseIsPressed && fetchedInfo[0] && windowWidth/2-(windowWidth/2-margin)/2<= mouseX && mouseX <= windowWidth/2+(windowWidth/2-margin)/2 && windowHeight/4 <= mouseY && mouseY <= windowHeight*0.75){
 			// console.log(true);
 			if(typeof fetchedInfo[1] != 'undefined'){
 				navigator.clipboard.writeText(fetchedInfo[1]).then(()=>{
 					// console.log("Source Copied");
 					if(copiedSource != fetchedInfo[1]){
-						copiedSource = fetchedInfo[1];
+						copiedStatus = true;
 					}
 				}).catch(err=>{
 					// console.log("error");
@@ -118,7 +119,7 @@ function draw(){
 		let explanation = split(fetchedInfo[3],".,");
 		textSize(10);
 		text(explanation[0],windowWidth/2,windowHeight/2+windowHeight/4+(windowHeight/2-windowHeight/4)*0.45,width-margin);
-		if(copiedSource != fetchedInfo[1]){
+		if(!copiedStatus){
 			// console.log(true);
 			textSize(20);
 			textStyle(BOLD);
@@ -131,7 +132,7 @@ function draw(){
 			textSize(20);
 			textStyle(BOLD);
 			noStroke();
-			fill('#1F9E40');
+			fill('#DE8A00');
 			strokeWeight(2);
 			text("COPIED!",windowWidth/2,windowHeight/2+windowHeight/4+(windowHeight/2-windowHeight/4)*0.15);
 		}	
@@ -155,11 +156,12 @@ function renderFeatures(){
 	}
 	buttons[0].update(windowWidth/8,windowHeight/2+windowHeight*0.3,windowWidth/3,windowHeight*0.2,10,margin);
 	buttons[1].update(windowWidth/8*7,windowHeight/2+windowHeight*0.3,windowWidth/3,windowHeight*0.2,10,margin);
-	buttons[2].update(windowWidth/8,windowHeight/2,windowWidth/3,windowHeight*0.6,10,margin);
+	buttons[2].update(windowWidth/8,windowHeight/2,windowWidth/3,windowHeight*0.6,30,margin);
 	buttons[3].update(windowWidth/8*7,windowHeight/2,windowWidth/3,windowHeight*0.6,10,margin);
 }
 
 function fetchApi(){
+	copiedStatus = false;
 	let url = "https://api.nasa.gov/planetary/apod?date=";
 	let apiKey = "eBxUdgb3ndh8ififjjN4O2phAzPODRBBkWcVviy2";
 	let timeStamp = currentDate.getTime();

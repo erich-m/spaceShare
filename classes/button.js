@@ -6,14 +6,14 @@ class Button {
 		this.w = w;
 		this.h = h;
 		this.r = r;
-
+		
 		this.m = margin;
-
+		
 		this.note = note;
 		this.v = volume;
-
+		
 		this.id = id;
-
+		
         this.textParam = textParam;
 		
 		this.c = fillColor;
@@ -34,7 +34,7 @@ class Button {
 		}
 		rectMode(CENTER);
 		rect(this.x,this.y,this.w-3*this.m,this.h-this.m*2,this.r);
-
+		
         fill(0);
         noStroke();
         textSize(this.w*0.05);
@@ -46,7 +46,7 @@ class Button {
 		this.w = w;
 		this.h = h;
 		this.r = r;
-
+		
 		this.m = margin;
 	}
 	flash(waitTime,flashControl,updateFunction){
@@ -61,7 +61,7 @@ class Button {
 				//console.log(this.id);//impusle output on activation
 				this.playSynth();
 				if(typeof(updateFunction) == "function"){
-            		updateFunction(this.id);
+					updateFunction(this.id);
 				}
 			}
 			if(this.flashStatus && millis() >= this.flashTargetTime){
@@ -71,23 +71,23 @@ class Button {
 		}
 	}
 	checkIntersection(){
-		if((-this.w/2+this.x <= mouseX && mouseX < (this.w/2+this.x)) && (-this.h/2+this.y <= mouseY && mouseY < (this.h/2+this.y))){//check outer bounds of button
-			//set up inner bounds
-			let topLeft = [-this.w/2+this.x-this.r,-this.h/2+this.y-this.r];//top left corner of inner bound
-			let topRight = [this.w/2+this.x-this.r,-this.h/2+this.y-this.r];//top right corner of inner bound
-			let bottomLeft = [-this.w/2+this.x-this.r,this.h/2+this.y-this.r];//bottom left of inner bound
-			let bottomRight = [this.x/2+this.x-this.r,this.y/2+this.y-this.r];//bottom right of inner bound
-			
-			if((topLeft[0] <= mouseX && mouseX <= topRight[0]) || (topLeft[1] <= mouseY && mouseY <= bottomRight[1])){//check inner bounds
-				return true;
-			}else{
-				//check radial bounds
-				if(dist(mouseX,mouseY,topLeft[0],topLeft[1]) <= this.r || dist(mouseX,mouseY,topRight[0],topRight[1]) <= this.r || dist(mouseX,mouseY,bottomLeft[0],bottomLeft[1]) <= this.r || dist(mouseX,mouseY,bottomRight[0],bottomRight[1]) <= this.r){
-					return true;
-				}else{
-					return false;
-				}
-			}
+		let outer = {
+			left : this.x - (this.w-3*this.m)/2,
+			right: this.x + (this.w-3*this.m)/2,
+			top  : this.y-(this.h-this.m*2)/2,
+			bottom : this.y+(this.h-this.m*2)/2
+		}
+		let inner = {
+			left : this.x - (this.w-3*this.m)/2 + this.r,
+			right: this.x + (this.w-3*this.m)/2 - this.r,
+			top  : this.y-(this.h-this.m*2)/2 + this.r,
+			bottom : this.y+(this.h-this.m*2)/2 - this.r
+		};
+		//check inner cross boundaries
+		if((outer.left <= mouseX && mouseX <= outer.right && inner.top <= mouseY && mouseY <= inner.bottom) || (inner.left <= mouseX && mouseX <= inner.right && outer.top <= mouseY && mouseY <= outer.bottom)){//check the outer bounds of the button
+			return true;
+		}else if((dist(mouseX,mouseY,inner.left,inner.top) <= this.r) || (dist(mouseX,mouseY,inner.right,inner.top) <= this.r) || (dist(mouseX,mouseY,inner.left,inner.bottom) <= this.r) || (dist(mouseX,mouseY,inner.right,inner.bottom) <= this.r)){//check inner corner distances to mouse position
+			return true;
 		}else{
 			return false;
 		}
@@ -99,11 +99,11 @@ class Button {
 	disableButton(){
 		this.buttonStatus = false;
 	}
-
+	
 	enableUserControl(){
 		this.userControl = true;
 	}
-
+	
 	disableUserControl(){
 		this.userControl = false;
 	}
