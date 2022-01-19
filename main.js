@@ -5,6 +5,7 @@ let monoSynth;
 let fetchedInfo = [];
 
 let loadingGif;
+let logo;
 let currentImage;
 
 let margin = 70;
@@ -45,6 +46,7 @@ function setup(){
 	monoSynth = new p5.MonoSynth();
 
 	loadingGif = loadImage("assets/loading.gif");
+	logo = loadImage("assets/logo.png");
 
 	let todaysStamp = today.getTime();
 	let startStamp = startDate.getTime();
@@ -137,6 +139,8 @@ function draw(){
 			text("COPIED!",windowWidth/2,windowHeight/2+windowHeight/4+(windowHeight/2-windowHeight/4)*0.15);
 		}	
 	}
+	imageMode(CENTER);
+	image(logo,windowWidth/2,windowHeight/8,windowWidth,windowHeight/8);
 }
 
 function renderFeatures(){
